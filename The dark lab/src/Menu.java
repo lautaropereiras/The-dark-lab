@@ -1,37 +1,55 @@
-import javax.swing.AbstractAction;
-import javax.swing.Action;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class Menu {
 
+    private JFrame frame;
+
     public static void main(String[] args) {
-        JFrame frame = new JFrame("");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximiza el frame
-        frame.setUndecorated(true); // Elimina los bordes y barra de título
-        
-        // Agrega un ActionListener para salir del modo de pantalla completa cuando se presiona ESC
-        frame.getRootPane().getInputMap().put(javax.swing.KeyStroke.getKeyStroke("ESCAPE"), "cerrarFullscreen");
-        frame.getRootPane().getActionMap().put("cerrarFullscreen", (Action) new AbstractAction(){
-            public void actionPerformed(ActionEvent e){
-                frame.dispose(); // Cierra el frame
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    Menu window = new Menu();
+                    window.frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
+    }
 
-        // Obtiene el dispositivo de pantalla actual
-        GraphicsDevice dispositivo = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    public Menu() {
+        initialize();
+    }
+
+    private void initialize() {
+        frame = new JFrame();
+        frame.setBounds(100, 100, 450, 300);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(true);
+        frame.getContentPane().setLayout(null);
+
+        // Crea un panel para contener la etiqueta con la imagen
+        JPanel panel = new JPanel();
+        panel.setBounds(0, 0, 1280, 986);
+        frame.getContentPane().add(panel);
+
+
+        // Crea la etiqueta con la imagen escalada
+        JLabel etiqueta = new JLabel("");
+        etiqueta.setIcon(new ImageIcon("Imagenes//MenuIcon (1).gif"));
         
-        // Verifica si el dispositivo de pantalla soporta el modo de pantalla completa
-        if (dispositivo.isFullScreenSupported()) {
-            // Establece el frame en modo de pantalla completa
-            dispositivo.setFullScreenWindow(frame);
-        } else {
-            // Si el modo de pantalla completa no es compatible, muestra el frame en modo normal
-            frame.setVisible(true);
-        }
+
+        // AÃ±ade la etiqueta al panel en lugar de directamente al JFrame
+        panel.add(etiqueta);
+
+        frame.setVisible(true);
     }
 }
