@@ -1,6 +1,7 @@
 package Entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -13,22 +14,34 @@ public class Player extends entity {
 	GamePanel gp;	
 	Main.KeyHandler keyH;
 	
-
+	public final int screenX;
+	public final int screenY;
+	int hasKey = 0;
 
 	public Player (GamePanel gp, Main.KeyHandler keyH)
 	{
 		this.gp = gp;
 		this.keyH = keyH;
 		
+		screenX = 600;
+		screenY = 500;
 		
+		solidArea = new Rectangle();
+		solidArea.x = 32;
+		solidArea.y = 55;
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;		
+		solidArea.width = 32;
+		solidArea.height = 30;
+
 
 		setDefaultValues();
 		getPlayerImage();
 	}
 	public void setDefaultValues()
 	{
-		x = 880;
-		y = 460;
+		worldX = gp.tileSize * 23;
+		worldY = gp.tileSize * 26;
 		speed = 4;
 		direction ="down";
 	}
@@ -50,8 +63,8 @@ public class Player extends entity {
 			left4 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento izquierda4.png"));
 			right1 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha1.png"));
 			right2 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha2.png"));
-			right3 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha1.png"));
-			right4 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha1.png"));
+			right3 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha3.png"));
+			right4 = ImageIO.read(getClass().getResourceAsStream("/player/movimiento derecha4.png"));
 
 		}catch(IOException e)
 		{
@@ -66,22 +79,48 @@ public class Player extends entity {
 			if(keyH.upPressed == true)
 			{
 				direction = "up";
-				y -= speed;
+				
 			}
 			else if (keyH.downPressed == true)
 			{
 				direction = "down";
-				y += speed;
+				
 			}
 			else if (keyH.leftPressed == true)
 			{
 				direction = "left";
-				x -= speed;
+				
 			}
 			else if (keyH.rightPressed == true)
 			{
 				direction = "right";
-				x += speed;
+			}
+			
+			collisionOn = false;
+			gp.cChecker.checkTile(this);
+			
+			int objIndex = gp.cChecker.checkObject(this, true);
+			pickUpObject(objIndex);
+			
+			if(collisionOn == false)
+			{
+				switch(direction)
+				{
+				case "up":
+					worldY -= speed;
+					break;
+				case "down":
+					worldY += speed;
+					break;
+				case "left":
+					worldX -= speed;
+					break;
+				case "right":
+					worldX += speed;
+
+					break;
+					
+				}
 			}
 			
 			
@@ -95,6 +134,32 @@ public class Player extends entity {
 		}
 		
 	}
+	
+	public void pickUpObject(int i)
+	{
+		if(i != 999)
+		{
+			String 	objectName = gp.obj[i].name;
+			
+			switch(objectName)
+			{
+			case "Card":
+				hasKey++;
+				gp.obj[i] = null;
+				System.out.println("Llave"+hasKey);
+				break;
+			case "Door":
+				if(hasKey == 3)
+				{
+					gp.obj[i] = null;
+					hasKey = 0;
+				}
+				System.out.println("Llave"+hasKey);
+
+			}
+		}
+	}
+	
 	public void draw(Graphics2D g2) 
 	{
 
@@ -188,7 +253,7 @@ public class Player extends entity {
 			}
 			break;
 		}
-		g2.drawImage(image, x, y,gp.tileSize,gp.tileSize, null);
+		g2.drawImage(image, screenX, screenY,gp.tileSize,gp.tileSize, null);
 
 	}
 }

@@ -15,14 +15,14 @@ public class TileManager {
 	
 	
 		GamePanel gp;
-		tile [] Tile;
-		int mapTileNum[][];
+		public tile [] Tile;
+		public int mapTileNum[][];
 		public TileManager(GamePanel gp)
 		{
 			this.gp = gp;
 
 			Tile = new tile[10];
-			mapTileNum = new int[gp.maxScreenCol][gp.maxScreenRow];
+			mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
 		
 			
 			
@@ -36,27 +36,24 @@ public class TileManager {
 			{
 				Tile[0] = new tile();
 				Tile[0].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/pared1.png"));
+				Tile[0].collision = true;
+				
+				Tile[2] = new tile();
+				Tile[2].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/pared_2.png"));
+				Tile[2].collision = true;
 				
 				Tile[3] = new tile();
 				Tile[3].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/piso_sangre.png"));
-				
+
 				Tile[1] = new tile();
 				Tile[1].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/piso.png"));
-				
-				Tile[2] = new tile();
-				Tile[2].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/puerta.png"));
-				
-				Tile[4] = new tile();
-				Tile[4].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/puerta1.png"));
-				
-				Tile[5] = new tile();
-				Tile[5].Image = ImageIO.read(getClass().getResourceAsStream("/Tiles/puerta2.png"));
-				
-				
+			
 				
 			}catch(IOException e)
 			{
 				e.printStackTrace();
+			    System.out.println("Error loading tile image: " + e.getMessage());
+
 			}
 		}
 		
@@ -71,11 +68,11 @@ public class TileManager {
 			int col = 0;
 			int row = 0;
 			
-			while(col < gp.maxScreenCol && row < gp.maxScreenRow)
+			while(col < gp.maxWorldCol && row < gp.maxWorldRow)
 			{
 				String line = br.readLine();
 				
-				while(col < gp.maxScreenCol)
+				while(col < gp.maxWorldCol)
 				{
 					String numbers[] = line.split(" ");
 					
@@ -85,7 +82,7 @@ public class TileManager {
 					col++;
 				}
 				
-				if(col == gp.maxScreenCol)
+				if(col == gp.maxWorldCol)
 				{
 					col = 0;
 					row++;
@@ -101,29 +98,30 @@ public class TileManager {
 		
 		public void draw(Graphics2D g2)
 		{
-			int col = 0;
-			int row = 0;
-			int y = 0;
-			int x = 0;
+			int worldCol = 0;
+			int worldRow = 0;
 			
-			while(col < gp.maxScreenCol && row < gp.maxScreenRow)
-			{
+			while(worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
 				
-				int tileNum = mapTileNum[col][row];
+				int tileNum = mapTileNum[worldCol][worldRow];			
+				int worldX = worldCol * gp.tileSize;
+				int worldY = worldRow * gp.tileSize;
+				int screenX = worldX - gp.player.worldX + gp.player.screenX;
+				int screenY = worldY - gp.player.worldY + gp.player.screenY;
 				
-				g2.drawImage(Tile[tileNum].Image, x, y, gp.tileSize, gp.tileSize, null);
-				col++;
-				x += gp.tileSize;
-				
-				if(col == gp.maxScreenCol)
-				{
-					col = 0;
-					x = 0;
-					row ++;
-					y += gp.tileSize; 
+				if(	worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
+					worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
+					worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
+					worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
+					
+					g2.drawImage(Tile[tileNum].Image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+				}			
+				worldCol++;			
+				if(worldCol == gp.maxWorldCol) {
+					worldCol = 0; 
+					worldRow++;			
 				}
-
-			}
+			}	
 			
 
 			

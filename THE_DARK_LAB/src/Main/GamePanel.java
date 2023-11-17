@@ -7,29 +7,42 @@ import java.awt.Graphics2D;
 import javax.swing.*;
 
 import Entity.Player;
+import Object.SuperObject;
 import Tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
 	
 	int FPS = 60; 
-	 final int originalTileSize = 16;
+	 final int originalTileSize = 32;
 	 final int scale = 3;
 	public final int tileSize = originalTileSize * scale;
-	public final int maxScreenCol = 96;
-	public final int maxScreenRow = 96;
+	public final int maxScreenCol = 50;
+	public final int maxScreenRow = 50;
 	public final int screenWidth = tileSize * maxScreenCol;
 	public final int screenHeight = tileSize * maxScreenRow;
 	
 	
-	public final int maxWorldCol = 100;
-	public final int maxWorldRow = 100;
+	public final int maxWorldCol = 50;
+	public final int maxWorldRow = 50;
 	public final int worldWidth = tileSize * maxWorldCol;
 	public final int worldHeight = tileSize * maxWorldRow;
 
 	TileManager tileM = new TileManager(this);
-	KeyHandler keyH = new KeyHandler();
+	KeyHandler keyH = new KeyHandler(this);
 	Thread gameThread;
+	public CollisionCheker cChecker = new CollisionCheker(this);
+	public AssetSetter aSetter = new AssetSetter(this);
 	public Player player = new Player(this,keyH);
+	public SuperObject obj[] = new SuperObject[10];
+	
+	
+	public int gameState;
+	public int playState = 1;
+	public int pauseState = 2;
+
+	
+	
+	
 	
 
 	
@@ -41,6 +54,13 @@ public class GamePanel extends JPanel implements Runnable {
 		this.addKeyListener(keyH);
 		this.setFocusable(true);
 	}
+	
+	public void setupGame()
+	{
+		aSetter.setObject();
+		gameState = playState;
+	}
+	
 	public void startGameThread() {
 		gameThread = new Thread( this);
 		gameThread.start();
@@ -84,15 +104,37 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void update()
 	{
-		player.update();
+		if(gameState == playState)
+		{
+			player.update();
+		}
+		if(gameState == playState)
+		{
+			
+		}
+		
+		
+		
 		
 	}
 	public void paintComponent (Graphics g)
 	{
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
+		
+		
 		tileM.draw(g2);
+		
+		for(int i = 0; i < obj.length; i++)
+		{
+			if(obj[i] != null)
+			{
+				obj[i].draw(g2, this);
+			}
+		}
+		
 		player.draw(g2);
+		
 		g2.dispose();
 	}
 }
